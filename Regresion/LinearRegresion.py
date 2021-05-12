@@ -32,15 +32,37 @@ def unite_sets(deliveries, products, sessions, users):
     deliveries_sessions_users = pd.merge(deliveries_sessions, users, left_on="user_id", right_on="user_id")
     deliveries_sessions_users_products = pd.merge(deliveries_sessions_users, products, left_on="product_id", right_on="product_id")
 
-    deliveries_sessions_users_products.to_csv('../out.csv')
+    # deliveries_sessions_users_products.to_csv('../out.csv')
     return deliveries_sessions_users_products
 
 
-def one_hot_encode(train, s):
-    y = pd.get_dummies(train.city, prefix=s)
-    train = train.join(other=y)
-    train = train.loc[:, train.columns != s]
-    return train
+def one_hot_encode(df, s):
+    y = pd.get_dummies(df.city, prefix=s)
+    df = df.join(other=y)
+    df = df.loc[:, df.columns != s]
+    return df
+
+
+def delete_unwanted_columns(unitated):
+    unitated = unitated.loc[:, unitated.columns != 'event_type']
+    unitated = unitated.loc[:, unitated.columns != 'name']
+    unitated = unitated.loc[:, unitated.columns != 'street']
+    unitated = unitated.loc[:, unitated.columns != 'product_name']
+    unitated = unitated.loc[:, unitated.columns != 'delivery_timestamp']
+    unitated = unitated.loc[:, unitated.columns != 'purchase_timestamp']
+    unitated = unitated.loc[:, unitated.columns != 'timestamp']
+    unitated = unitated.loc[:, unitated.columns != 'purchase_id']
+    unitated = unitated.loc[:, unitated.columns != 'product_id']
+    unitated = unitated.loc[:, unitated.columns != 'user_id']
+    unitated = unitated.loc[:, unitated.columns != 'session_id']
+    return unitated
+
+
+def one_hot_encode(unitated, s):
+    y = pd.get_dummies(unitated[s], prefix=s)
+    unitated = unitated.join(other=y)
+    unitated = unitated.loc[:, unitated.columns != s]
+    return unitated
 
 
 if __name__ == '__main__':
@@ -53,55 +75,14 @@ if __name__ == '__main__':
 
     unitated = unite_sets(deliveries, products, sessions, users)
 
-    # nie wnosi zadnej informacji wiec wyrzucamy daną kolumnę
-    unitated = unitated.loc[:, unitated.columns != 'event_type']
-    unitated = unitated.loc[:, unitated.columns != 'name']
-    unitated = unitated.loc[:, unitated.columns != 'street']
-    unitated = unitated.loc[:, unitated.columns != 'product_name']
-    unitated = unitated.loc[:, unitated.columns != 'delivery_timestamp']
-    unitated = unitated.loc[:, unitated.columns != 'purchase_timestamp']
-    unitated = unitated.loc[:, unitated.columns != 'timestamp']
-    unitated = unitated.loc[:, unitated.columns != 'purchase_id']
-    unitated = unitated.loc[:, unitated.columns != 'product_id']
-    unitated = unitated.loc[:, unitated.columns != 'user_id']
-    unitated = unitated.loc[:, unitated.columns != 'session_id']
+    unitated = delete_unwanted_columns(unitated)
 
-    # unitated['purchase_timestamp'] = pd.to_datetime(unitated['purchase_timestamp'])
-    # unitated['purchase_timestamp'] = unitated['purchase_timestamp'].map(dt.datetime.toordinal)
-    #
-    # unitated['delivery_timestamp'] = pd.to_datetime(unitated['delivery_timestamp'])
-    # unitated['delivery_timestamp'] = unitated['delivery_timestamp'].map(dt.datetime.toordinal)
-    #
-    # unitated['timestamp'] = pd.to_datetime(unitated['timestamp'])
-    # unitated['timestamp'] = unitated['timestamp'].map(dt.datetime.toordinal)
-
-    # train['deltas'] = pd.to_datetime(train['deltas'])
-    # train['deltas'] = train['deltas'].map(dt.datetime.toordinal)
-
-    # tworzenie one hot encoding dla kolumny city
-    y = pd.get_dummies(unitated.city, prefix='city')
-    unitated = unitated.join(other=y)
-    unitated = unitated.loc[:, unitated.columns != 'city']
-
-    y = pd.get_dummies(unitated.primary_category, prefix='primary_category')
-    unitated = unitated.join(other=y)
-    unitated = unitated.loc[:, unitated.columns != 'primary_category']
-
-    y = pd.get_dummies(unitated.secondary_category, prefix='secondary_category')
-    unitated = unitated.join(other=y)
-    unitated = unitated.loc[:, unitated.columns != 'secondary_category']
-
-    y = pd.get_dummies(unitated.tertiary_category, prefix='tertiary_category')
-    unitated = unitated.join(other=y)
-    unitated = unitated.loc[:, unitated.columns != 'tertiary_category']
-
-    y = pd.get_dummies(unitated.quaternary_category, prefix='quaternary_category')
-    unitated = unitated.join(other=y)
-    unitated = unitated.loc[:, unitated.columns != 'quaternary_category']
-
-    y = pd.get_dummies(unitated.delivery_company, prefix='delivery_company')
-    unitated = unitated.join(other=y)
-    unitated = unitated.loc[:, unitated.columns != 'delivery_company']
+    unitated = one_hot_encode(unitated,'city')
+    unitated = one_hot_encode(unitated, 'primary_category')
+    unitated = one_hot_encode(unitated, 'secondary_category')
+    unitated = one_hot_encode(unitated, 'tertiary_category')
+    unitated = one_hot_encode(unitated, 'quaternary_category')
+    unitated = one_hot_encode(unitated, 'delivery_company')
 
     unitated['deltas'] = pd.to_numeric(unitated['deltas'].dt.days, downcast='integer')
 
