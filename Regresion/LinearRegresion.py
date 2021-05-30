@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import datasets, linear_model
 from data_preprocessing.DataLoader import DataLoader
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 
 
 class BayesClassifier:
@@ -93,6 +93,8 @@ if __name__ == '__main__':
     X_train = train.loc[:, train.columns != 'deltas']
     y_train = train['deltas']
 
+    X_train.to_csv('../X_train.csv')
+
     X_test = test.loc[:, test.columns != 'deltas']
     y_test = test['deltas']
 
@@ -105,3 +107,4 @@ if __name__ == '__main__':
           % mean_squared_error(y_test, y_pred))
     print('Coefficient of determination: %.2f'
           % r2_score(y_test, y_pred))
+    print('mean absolute error: \n', mean_absolute_error(y_test, y_pred))
