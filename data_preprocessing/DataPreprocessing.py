@@ -28,7 +28,7 @@ class DataPreprocessing:
         users = data.users
 
         deliveries = DataPreprocessing.prepossess_deliveries(deliveries)
-        products = DataPreprocessing.prepossess_products(products)
+        # products = DataPreprocessing.prepossess_products(products)
 
         df_all_data = DataPreprocessing.merge_all_data(deliveries, products, sessions, users)
 
@@ -46,6 +46,7 @@ class DataPreprocessing:
 
         df_all_data["delivery_company"] = df_all_data["delivery_company"].fillna(9999)  # TODO remove null values
 
+        df_all_data.to_csv("out.csv")
         return df_all_data
 
     @staticmethod
@@ -93,6 +94,7 @@ class DataPreprocessing:
         df = df.loc[:, df.columns != 'user_id']
         df = df.loc[:, df.columns != 'session_id']
         df = df.loc[:, df.columns != 'purchase_timestamp']
+        df = df.loc[:, df.columns != 'category_path']
 
         return df
 

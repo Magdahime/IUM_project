@@ -13,7 +13,6 @@ class BayesClassifier:
         super().__init__()
 
 
-
 if __name__ == '__main__':
     data = DataLoader.load_data_from_path("../data")
 

@@ -33,17 +33,82 @@ app.layout = html.Div(children=[
         id='delivery_company',
     ),
 
+    html.Label('Zniżka w %'),
+    dcc.Dropdown(
+        options=[{"label": offered_discount, "value": offered_discount} for offered_discount in
+                 df.offered_discount.unique()],
+        id='offered_discount',
+    ),
+
+    html.Label('Pora Dnia'),
+    dcc.Dropdown(
+        options=[{"label": weekday, "value": weekday} for weekday in
+                 df.weekday.unique()],
+        id='weekday',
+    ),
+
+    html.Label('Dzień Tygodnia'),
+    dcc.Dropdown(
+        options=[{"label": time_of_day, "value": time_of_day} for time_of_day in
+                 df.time_of_day.unique()],
+        id='time_of_day',
+    ),
+
+    html.Div(["Cena: ",
+              dcc.Input(id='price', value='100.99', type='text')]),
+
+    html.Button(id='button', n_clicks=0, children='Wyslij'),
+
     html.Div(id='my-output')
 ])
 
 
+# @app.callback(
+#     Output(component_id='my-output', component_property='children'),
+#     Input(component_id='button', component_property='n_clicks')
+# )
+# def update_output(n_clicks):
+#     if n_clicks == 0:
+#         raise PreventUpdate
+#     else:
+#         return n_clicks
+
+
 @app.callback(
     Output(component_id='my-output', component_property='children'),
+    Input(component_id='button', component_property='n_clicks'),
     Input(component_id='city', component_property='value'),
-    Input(component_id='delivery_company', component_property='value')
+    Input(component_id='delivery_company', component_property='value'),
+    Input(component_id='offered_discount', component_property='value'),
+    Input(component_id='time_of_day', component_property='value'),
+    Input(component_id='weekday', component_property='value'),
+    Input(component_id='price', component_property='value')
+
 )
-def update_output_div(city, delivery_company):
-    return 'Output: {}, {}'.format(city, delivery_company)
+def update_output_div(n_clicks, city, delivery_company,
+                      offered_discount, time_of_day, weekday, price):
+    if n_clicks == 0:
+        return dash.no_update
+    else:
+        # f = open('../models/bayes_1.0.0.pickle', 'rb')
+        # bayes = pickle.load(f)
+        #
+        # # dictionary of lists
+        # dict = {'city': ['Mielec'],
+        #         'delivery_company': ['360'],
+        #         'offered_discount': [0],
+        #         'time_of_day': ['Tuesday'],
+        #         'weekday': ['Night'],
+        #         'price': [100.99]
+        #         }
+        #
+        # df = pd.DataFrame(dict)
+        #
+        # y_pred = bayes.predict(df)
+        # f.close()
+
+        return 'Przewidywana ilość dni: {}' \
+            .format(n_clicks)
 
 
 if __name__ == '__main__':
