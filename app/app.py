@@ -1,6 +1,9 @@
+import pickle
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import pandas as pd
 from dash.dependencies import Input, Output
 
 from data_preprocessing.DataLoader import DataLoader
@@ -63,17 +66,6 @@ app.layout = html.Div(children=[
 ])
 
 
-# @app.callback(
-#     Output(component_id='my-output', component_property='children'),
-#     Input(component_id='button', component_property='n_clicks')
-# )
-# def update_output(n_clicks):
-#     if n_clicks == 0:
-#         raise PreventUpdate
-#     else:
-#         return n_clicks
-
-
 @app.callback(
     Output(component_id='my-output', component_property='children'),
     Input(component_id='button', component_property='n_clicks'),
@@ -90,22 +82,22 @@ def update_output_div(n_clicks, city, delivery_company,
     if n_clicks == 0:
         return dash.no_update
     else:
-        # f = open('../models/bayes_1.0.0.pickle', 'rb')
-        # bayes = pickle.load(f)
-        #
-        # # dictionary of lists
-        # dict = {'city': ['Mielec'],
-        #         'delivery_company': ['360'],
-        #         'offered_discount': [0],
-        #         'time_of_day': ['Tuesday'],
-        #         'weekday': ['Night'],
-        #         'price': [100.99]
-        #         }
-        #
-        # df = pd.DataFrame(dict)
-        #
-        # y_pred = bayes.predict(df)
-        # f.close()
+        f = open('../models/bayes_1.0.0.pickle', 'rb')
+        bayes = pickle.load(f)
+
+        # dictionary of lists
+        dict = {'city': ['Mielec'],
+                'delivery_company': ['360'],
+                'offered_discount': [0],
+                'time_of_day': ['Tuesday'],
+                'weekday': ['Night'],
+                'price': [100.99]
+                }
+
+        df = pd.DataFrame(dict)
+
+        y_pred = bayes.predict(df)
+        f.close()
 
         return 'Przewidywana ilość dni: {}' \
             .format(n_clicks)
