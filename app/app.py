@@ -22,6 +22,14 @@ app.layout = html.Div(children=[
     html.Div(children='''
             Wprowadź dane zamówienia aby otrzymać przewidywany czas dostawy.
         '''),
+    html.Label('Którego modelu chcesz użyć?'),
+    dcc.Dropdown(
+        options=[
+            {'label': 'Bayes', 'value': 'bayes'},
+            {'label': 'Sieć Neuronowa', 'value': 'siec'}
+        ],
+        id="model",
+    ),
 
     html.Label('Miasto'),
     dcc.Dropdown(
@@ -74,15 +82,19 @@ app.layout = html.Div(children=[
     Input(component_id='offered_discount', component_property='value'),
     Input(component_id='time_of_day', component_property='value'),
     Input(component_id='weekday', component_property='value'),
-    Input(component_id='price', component_property='value')
+    Input(component_id='price', component_property='value'),
+    Input(component_id='model', component_property='value')
 
 )
 def update_output_div(n_clicks, city, delivery_company,
-                      offered_discount, time_of_day, weekday, price):
+                      offered_discount, time_of_day, weekday, price, model):
     if n_clicks == 0:
         return dash.no_update
     else:
-        f = open('../models/bayes_1.0.0.pickle', 'rb')
+        if model == "bayes":
+            f = open('../models/bayes_1.0.0.pickle', 'rb')
+        else:
+            f = open('../models/bayes_1.0.0.pickle', 'rb')  # TODO change model
         bayes = pickle.load(f)
 
         # dictionary of lists
@@ -102,7 +114,7 @@ def update_output_div(n_clicks, city, delivery_company,
         f.close()
 
         return 'Przewidywana ilość dni: {}' \
-            .format(y_pred[0])
+            .format(y_pred[0] + 1)  #TODO dodanie jeden bo modele zaokrąglają w dół
 
 
 if __name__ == '__main__':
