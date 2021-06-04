@@ -43,14 +43,14 @@ app.layout = html.Div(children=[
         id='offered_discount',
     ),
 
-    html.Label('Pora Dnia'),
+    html.Label('Dzień Tygodnia'),
     dcc.Dropdown(
         options=[{"label": weekday, "value": weekday} for weekday in
                  df.weekday.unique()],
         id='weekday',
     ),
 
-    html.Label('Dzień Tygodnia'),
+    html.Label('Pora Dnia'),
     dcc.Dropdown(
         options=[{"label": time_of_day, "value": time_of_day} for time_of_day in
                  df.time_of_day.unique()],
@@ -87,13 +87,13 @@ def update_output_div(n_clicks, city, delivery_company,
 
         # dictionary of lists
         dict = {
-            'offered_discount': [0],
-            'price': [2317.02]
+            'offered_discount': [offered_discount],
+            'price': [price]
         }
-        dict.update(DataPreprocessing.findCity("Konin"))
-        dict.update(DataPreprocessing.findDeliveryCompany(620))
-        dict.update(DataPreprocessing.findTimeOfDay("Night"))
-        dict.update(DataPreprocessing.findWeekday("Friday"))
+        dict.update(DataPreprocessing.findCity(city))
+        dict.update(DataPreprocessing.findDeliveryCompany(delivery_company))
+        dict.update(DataPreprocessing.findTimeOfDay(time_of_day))
+        dict.update(DataPreprocessing.findWeekday(weekday))
         print(dict)
 
         df = pd.DataFrame(dict)
