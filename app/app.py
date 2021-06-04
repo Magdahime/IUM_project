@@ -86,13 +86,15 @@ def update_output_div(n_clicks, city, delivery_company,
         bayes = pickle.load(f)
 
         # dictionary of lists
-        dict = {'city': ['Mielec'],
-                'delivery_company': ['360'],
-                'offered_discount': [0],
-                'time_of_day': ['Tuesday'],
-                'weekday': ['Night'],
-                'price': [100.99]
-                }
+        dict = {
+            'offered_discount': [0],
+            'price': [2317.02]
+        }
+        dict.update(DataPreprocessing.findCity("Konin"))
+        dict.update(DataPreprocessing.findDeliveryCompany(620))
+        dict.update(DataPreprocessing.findTimeOfDay("Night"))
+        dict.update(DataPreprocessing.findWeekday("Friday"))
+        print(dict)
 
         df = pd.DataFrame(dict)
 
@@ -100,7 +102,7 @@ def update_output_div(n_clicks, city, delivery_company,
         f.close()
 
         return 'Przewidywana ilość dni: {}' \
-            .format(n_clicks)
+            .format(y_pred[0])
 
 
 if __name__ == '__main__':
