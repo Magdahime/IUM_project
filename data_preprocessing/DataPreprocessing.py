@@ -136,13 +136,6 @@ class DataPreprocessing:
 
         df_all_data = DataPreprocessing.delete_unwanted_columns(df_all_data)
 
-        # united = one_hot_encode(united, 'city')
-        # united = one_hot_encode(united, 'delivery_company')
-        # united = one_hot_encode(united, 'time_of_day')
-        # united = one_hot_encode(united, 'weekday')
-
-        # united['deltas'] = pd.to_numeric(united['deltas'].dt.days, downcast='integer')
-
         df_all_data["delivery_company"] = df_all_data["delivery_company"].fillna(9999)  # TODO remove null values
 
         return df_all_data
@@ -193,7 +186,8 @@ class DataPreprocessing:
         df = df.loc[:, df.columns != 'session_id']
         df = df.loc[:, df.columns != 'purchase_timestamp']
         df = df.loc[:, df.columns != 'category_path']
-
+        df = df.loc[:, df.columns != 'offered_discount']
+        df = df.loc[:, df.columns != 'price']
         return df
 
     @staticmethod

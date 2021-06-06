@@ -46,13 +46,13 @@ app.layout = html.Div(children=[
         value=620
     ),
 
-    html.Label('Zniżka w %'),
-    dcc.Dropdown(
-        options=[{"label": offered_discount, "value": offered_discount} for offered_discount in
-                 df.offered_discount.unique()],
-        id='offered_discount',
-        value=0,
-    ),
+    # html.Label('Zniżka w %'),
+    # dcc.Dropdown(
+    #     options=[{"label": offered_discount, "value": offered_discount} for offered_discount in
+    #              df.offered_discount.unique()],
+    #     id='offered_discount',
+    #     value=0,
+    # ),
 
     html.Label('Dzień Tygodnia'),
     dcc.Dropdown(
@@ -70,8 +70,8 @@ app.layout = html.Div(children=[
         value="Night",
     ),
 
-    html.Div(["Cena: ",
-              dcc.Input(id='price', value='100.99', type='text')]),
+    # html.Div(["Cena: ",
+    #           dcc.Input(id='price', value='100.99', type='text')]),
 
     html.Button(id='button', n_clicks=0, children='Wyslij'),
 
@@ -84,29 +84,26 @@ app.layout = html.Div(children=[
     Input(component_id='button', component_property='n_clicks'),
     Input(component_id='city', component_property='value'),
     Input(component_id='delivery_company', component_property='value'),
-    Input(component_id='offered_discount', component_property='value'),
+    # Input(component_id='offered_discount', component_property='value'),
     Input(component_id='time_of_day', component_property='value'),
     Input(component_id='weekday', component_property='value'),
-    Input(component_id='price', component_property='value'),
+    # Input(component_id='price', component_property='value'),
     Input(component_id='model', component_property='value')
 
 )
 def update_output_div(n_clicks, city, delivery_company,
-                      offered_discount, time_of_day, weekday, price, model):
+                      time_of_day, weekday):
     if n_clicks == 0:
         return dash.no_update
     else:
+        model = "bayes"  # TODO Magda wstaw tu co trzeba
         if model == "bayes":
             f = open('../models/bayes_1.0.0.pickle', 'rb')
         else:
             f = open('../models/neural_n_1.0.0.pickle', 'rb')
         bayes = pickle.load(f)
 
-        # dictionary of lists
-        dict = {
-            'offered_discount': [offered_discount],
-            'price': [price]
-        }
+        dict = {}
         dict.update(DataPreprocessing.findCity(city))
         dict.update(DataPreprocessing.findDeliveryCompany(delivery_company))
         dict.update(DataPreprocessing.findTimeOfDay(time_of_day))
@@ -119,7 +116,7 @@ def update_output_div(n_clicks, city, delivery_company,
         f.close()
 
         return 'Przewidywana ilość dni: {}' \
-            .format(y_pred[0] + 1)  # TODO dodanie jeden bo modele zaokrąglają w dół
+            .format(y_pred[0])  # TODO dodanie jeden bo modele zaokrąglają w dół
 
 
 if __name__ == '__main__':
