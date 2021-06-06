@@ -94,30 +94,35 @@ def update_output_div(n_clicks, user_id, city, delivery_company,
         one_hot_encoded_data.update(DataPreprocessing.findTimeOfDay(time_of_day))
         one_hot_encoded_data.update(DataPreprocessing.findWeekday(weekday))
 
-        predictionData = pd.DataFrame(one_hot_encoded_data, index=[0])
+        y_pred = model.predict(pd.DataFrame(one_hot_encoded_data, index=[0]))
 
-        y_pred = model.predict(predictionData)
-
-        rememberData = {"id": user_id, "prediction": y_pred}
-        rememberData.update(one_hot_encoded_data)
-        rememberData_df = pd.DataFrame(rememberData, index=[0])
-
-        oldPredictions = oldPredictions.append(rememberData_df, ignore_index=True)
+        oldPredictions = oldPredictions.append(
+            add_id_and_predicted(one_hot_encoded_data, user_id, y_pred),
+            ignore_index=True)
 
         if model == "bayes":
-            fa = open('../UserPredictionData/bayes.pickle', 'wb')
-            pickle.dump(rememberData_df, fa)
-            fa.close()
+            save_pickle(oldPredictions, '../UserPredictionData/bayes.pickle')
         else:
-            fa = open('../UserPredictionData/neural.pickle', 'wb')
-            pickle.dump(rememberData_df, fa)
-            fa.close()
+            save_pickle(oldPredictions, '../UserPredictionData/neural.pickle')
 
         dataPickle.close()
         modelPickle.close()
 
         return 'Przewidywana ilość dni: {}' \
             .format(y_pred[0])
+
+
+def save_pickle(df, path):
+    fa = open(path, 'wb')
+    pickle.dump(df, fa)
+    fa.close()
+
+
+def add_id_and_predicted(dictionary_data, user_id, y_pred):
+    rememberData = {"id": user_id, "prediction": y_pred}
+    rememberData.update(dictionary_data)
+    rememberData_df = pd.DataFrame(rememberData, index=[0])
+    return rememberData_df
 
 
 if __name__ == '__main__':
