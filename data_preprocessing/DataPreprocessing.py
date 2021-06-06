@@ -186,8 +186,8 @@ class DataPreprocessing:
         df = df.loc[:, df.columns != 'session_id']
         df = df.loc[:, df.columns != 'purchase_timestamp']
         df = df.loc[:, df.columns != 'category_path']
-        df = df.loc[:, df.columns != 'offered_discount']
-        df = df.loc[:, df.columns != 'price']
+        # df = df.loc[:, df.columns != 'offered_discount']
+        # df = df.loc[:, df.columns != 'price']
         return df
 
     @staticmethod

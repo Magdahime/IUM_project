@@ -1,3 +1,4 @@
+import os
 import pickle
 
 import dash
@@ -15,6 +16,23 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 data = DataLoader.load_data_from_path("../data/")
 df = DataPreprocessing.prepareDate(data)
+
+
+def createPickles():
+    if not os.path.exists('../UserPredictionData/bayes.pickle'):
+        df = pd.DataFrame()
+        f = open('../UserPredictionData/bayes.pickle', 'wb+')
+        pickle.dump(df, f)
+        f.close()
+
+    if not os.path.exists('../UserPredictionData/neural.pickle'):
+        df = pd.DataFrame()
+        f = open('../UserPredictionData/neural.pickle', 'wb+')
+        pickle.dump(df, f)
+        f.close()
+
+
+createPickles()
 
 app.layout = html.Div(children=[
     html.H1(children='Zamówienie'),
@@ -57,6 +75,17 @@ app.layout = html.Div(children=[
         value="Night",
     ),
 
+    html.Label('Zniżka w %'),
+    dcc.Dropdown(
+        options=[{"label": offered_discount, "value": offered_discount} for offered_discount in
+                 df.offered_discount.unique()],
+        id='offered_discount',
+        value=0
+    ),
+
+    html.Div(["Cena: ",
+              dcc.Input(id='price', value='100.99', type='text')]),
+
     html.Button(id='button', n_clicks=0, children='Wyslij'),
 
     html.Div(id='my-output')
@@ -71,25 +100,30 @@ app.layout = html.Div(children=[
     Input(component_id='delivery_company', component_property='value'),
     Input(component_id='time_of_day', component_property='value'),
     Input(component_id='weekday', component_property='value'),
+    Input(component_id='offered_discount', component_property='value'),
+    Input(component_id='price', component_property='value'),
 
 )
 def update_output_div(n_clicks, user_id, city, delivery_company,
-                      time_of_day, weekday):
+                      time_of_day, weekday, offered_discount, price):
     if n_clicks == 0:
         return dash.no_update
     else:
-
-        model = hash_function(user_id)
-        if model == "bayes":
+        one_hot_encoded_data = {}
+        modelname = hash_function(user_id)
+        if modelname == "bayes":
             modelPickle = open('../models/bayes_1.0.0.pickle', 'rb')
             dataPickle = open('../UserPredictionData/bayes.pickle', 'rb')
-        elif model == "neural_net":
+            one_hot_encoded_data = {
+                'offered_discount': [offered_discount],
+                'price': [price]
+            }
+        elif modelname == "neural_net":
             modelPickle = open('../models/neural_n_1.0.0.pickle', 'rb')
             dataPickle = open('../UserPredictionData/neural.pickle', 'rb')
         model = pickle.load(modelPickle)
         oldPredictions = pickle.load(dataPickle)
 
-        one_hot_encoded_data = {}
         one_hot_encoded_data.update(DataPreprocessing.findCity(city))
         one_hot_encoded_data.update(
             DataPreprocessing.findDeliveryCompany(delivery_company))
@@ -103,9 +137,9 @@ def update_output_div(n_clicks, user_id, city, delivery_company,
             add_id_and_predicted(one_hot_encoded_data, user_id, y_pred),
             ignore_index=True)
 
-        if model == "bayes":
+        if modelname == "bayes":
             save_pickle(oldPredictions, '../UserPredictionData/bayes.pickle')
-        elif model == "neural_net":
+        elif modelname == "neural_net":
             save_pickle(oldPredictions, '../UserPredictionData/neural.pickle')
 
         dataPickle.close()
