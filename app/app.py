@@ -78,11 +78,12 @@ def update_output_div(n_clicks, user_id, city, delivery_company,
     if n_clicks == 0:
         return dash.no_update
     else:
-        model = "neural"  # TODO Magda wstaw tu co trzeba
+
+        model = hash_function(user_id)
         if model == "bayes":
             modelPickle = open('../models/bayes_1.0.0.pickle', 'rb')
             dataPickle = open('../UserPredictionData/bayes.pickle', 'rb')
-        else:
+        elif model == "neural_net":
             modelPickle = open('../models/neural_n_1.0.0.pickle', 'rb')
             dataPickle = open('../UserPredictionData/neural.pickle', 'rb')
         model = pickle.load(modelPickle)
@@ -90,8 +91,10 @@ def update_output_div(n_clicks, user_id, city, delivery_company,
 
         one_hot_encoded_data = {}
         one_hot_encoded_data.update(DataPreprocessing.findCity(city))
-        one_hot_encoded_data.update(DataPreprocessing.findDeliveryCompany(delivery_company))
-        one_hot_encoded_data.update(DataPreprocessing.findTimeOfDay(time_of_day))
+        one_hot_encoded_data.update(
+            DataPreprocessing.findDeliveryCompany(delivery_company))
+        one_hot_encoded_data.update(
+            DataPreprocessing.findTimeOfDay(time_of_day))
         one_hot_encoded_data.update(DataPreprocessing.findWeekday(weekday))
 
         y_pred = model.predict(pd.DataFrame(one_hot_encoded_data, index=[0]))
@@ -102,7 +105,7 @@ def update_output_div(n_clicks, user_id, city, delivery_company,
 
         if model == "bayes":
             save_pickle(oldPredictions, '../UserPredictionData/bayes.pickle')
-        else:
+        elif model == "neural_net":
             save_pickle(oldPredictions, '../UserPredictionData/neural.pickle')
 
         dataPickle.close()
@@ -123,6 +126,12 @@ def add_id_and_predicted(dictionary_data, user_id, y_pred):
     rememberData.update(dictionary_data)
     rememberData_df = pd.DataFrame(rememberData, index=[0])
     return rememberData_df
+
+
+def hash_function(user_id):
+    if(hash(user_id) % 2 == 0):
+        return "bayes"
+    return "neural_net"
 
 
 if __name__ == '__main__':
