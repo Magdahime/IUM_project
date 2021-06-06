@@ -22,14 +22,9 @@ app.layout = html.Div(children=[
     html.Div(children='''
             Wprowadź dane zamówienia aby otrzymać przewidywany czas dostawy.
         '''),
-    html.Label('Którego modelu chcesz użyć?'),
-    dcc.Dropdown(
-        options=[
-            {'label': 'Bayes', 'value': 'bayes'},
-            {'label': 'Sieć Neuronowa', 'value': 'siec'}
-        ],
-        id="model",
-    ),
+
+    html.Div(["Id użytkownika: ",
+              dcc.Input(id='user_id', type='number')]),
 
     html.Label('Miasto'),
     dcc.Dropdown(
@@ -45,14 +40,6 @@ app.layout = html.Div(children=[
         id='delivery_company',
         value=620
     ),
-
-    # html.Label('Zniżka w %'),
-    # dcc.Dropdown(
-    #     options=[{"label": offered_discount, "value": offered_discount} for offered_discount in
-    #              df.offered_discount.unique()],
-    #     id='offered_discount',
-    #     value=0,
-    # ),
 
     html.Label('Dzień Tygodnia'),
     dcc.Dropdown(
@@ -70,9 +57,6 @@ app.layout = html.Div(children=[
         value="Night",
     ),
 
-    # html.Div(["Cena: ",
-    #           dcc.Input(id='price', value='100.99', type='text')]),
-
     html.Button(id='button', n_clicks=0, children='Wyslij'),
 
     html.Div(id='my-output')
@@ -82,16 +66,14 @@ app.layout = html.Div(children=[
 @app.callback(
     Output(component_id='my-output', component_property='children'),
     Input(component_id='button', component_property='n_clicks'),
+    Input(component_id='user_id', component_property='value'),
     Input(component_id='city', component_property='value'),
     Input(component_id='delivery_company', component_property='value'),
-    # Input(component_id='offered_discount', component_property='value'),
     Input(component_id='time_of_day', component_property='value'),
     Input(component_id='weekday', component_property='value'),
-    # Input(component_id='price', component_property='value'),
-    # Input(component_id='model', component_property='value')
 
 )
-def update_output_div(n_clicks, city, delivery_company,
+def update_output_div(n_clicks, user_id, city, delivery_company,
                       time_of_day, weekday):
     if n_clicks == 0:
         return dash.no_update
