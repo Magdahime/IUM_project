@@ -35,6 +35,7 @@ app.layout = html.Div(children=[
     dcc.Dropdown(
         options=[{"label": city, "value": city} for city in df.city.unique()],
         id='city',
+        value="Konin",
     ),
 
     html.Label('Firma dostawcza'),
@@ -42,6 +43,7 @@ app.layout = html.Div(children=[
         options=[{"label": delivery_company, "value": delivery_company} for delivery_company in
                  df.delivery_company.unique()],
         id='delivery_company',
+        value=620
     ),
 
     html.Label('Zniżka w %'),
@@ -49,6 +51,7 @@ app.layout = html.Div(children=[
         options=[{"label": offered_discount, "value": offered_discount} for offered_discount in
                  df.offered_discount.unique()],
         id='offered_discount',
+        value=0,
     ),
 
     html.Label('Dzień Tygodnia'),
@@ -56,6 +59,7 @@ app.layout = html.Div(children=[
         options=[{"label": weekday, "value": weekday} for weekday in
                  df.weekday.unique()],
         id='weekday',
+        value="Friday",
     ),
 
     html.Label('Pora Dnia'),
@@ -63,6 +67,7 @@ app.layout = html.Div(children=[
         options=[{"label": time_of_day, "value": time_of_day} for time_of_day in
                  df.time_of_day.unique()],
         id='time_of_day',
+        value="Night",
     ),
 
     html.Div(["Cena: ",
@@ -94,7 +99,7 @@ def update_output_div(n_clicks, city, delivery_company,
         if model == "bayes":
             f = open('../models/bayes_1.0.0.pickle', 'rb')
         else:
-            f = open('../models/bayes_1.0.0.pickle', 'rb')  # TODO change model
+            f = open('../models/neural_n_1.0.0.pickle', 'rb')
         bayes = pickle.load(f)
 
         # dictionary of lists
@@ -114,7 +119,7 @@ def update_output_div(n_clicks, city, delivery_company,
         f.close()
 
         return 'Przewidywana ilość dni: {}' \
-            .format(y_pred[0] + 1)  #TODO dodanie jeden bo modele zaokrąglają w dół
+            .format(y_pred[0] + 1)  # TODO dodanie jeden bo modele zaokrąglają w dół
 
 
 if __name__ == '__main__':
