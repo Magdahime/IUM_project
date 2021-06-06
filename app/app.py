@@ -1,3 +1,4 @@
+import datetime
 import os
 import pickle
 
@@ -109,6 +110,7 @@ def update_output_div(n_clicks, user_id, city, delivery_company,
     if n_clicks == 0:
         return dash.no_update
     else:
+        ct = datetime.datetime.now()
         one_hot_encoded_data = {}
         modelname = hash_function(user_id)
         if modelname == "bayes":
@@ -134,7 +136,7 @@ def update_output_div(n_clicks, user_id, city, delivery_company,
         y_pred = model.predict(pd.DataFrame(one_hot_encoded_data, index=[0]))
 
         oldPredictions = oldPredictions.append(
-            add_id_and_predicted(one_hot_encoded_data, user_id, y_pred),
+            add_id_and_predicted_and_timestamp(one_hot_encoded_data, user_id, y_pred, ct),
             ignore_index=True)
 
         if modelname == "bayes":
@@ -155,15 +157,15 @@ def save_pickle(df, path):
     fa.close()
 
 
-def add_id_and_predicted(dictionary_data, user_id, y_pred):
-    rememberData = {"id": user_id, "prediction": y_pred}
+def add_id_and_predicted_and_timestamp(dictionary_data, user_id, y_pred, ct):
+    rememberData = {"timestamp": ct, "id": user_id, "prediction": y_pred}
     rememberData.update(dictionary_data)
     rememberData_df = pd.DataFrame(rememberData, index=[0])
     return rememberData_df
 
 
 def hash_function(user_id):
-    if(hash(user_id) % 2 == 0):
+    if hash(user_id) % 2 == 0:
         return "bayes"
     return "neural_net"
 
