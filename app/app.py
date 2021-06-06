@@ -88,7 +88,7 @@ app.layout = html.Div(children=[
     Input(component_id='time_of_day', component_property='value'),
     Input(component_id='weekday', component_property='value'),
     # Input(component_id='price', component_property='value'),
-    Input(component_id='model', component_property='value')
+    # Input(component_id='model', component_property='value')
 
 )
 def update_output_div(n_clicks, city, delivery_company,
@@ -98,22 +98,32 @@ def update_output_div(n_clicks, city, delivery_company,
     else:
         model = "bayes"  # TODO Magda wstaw tu co trzeba
         if model == "bayes":
-            f = open('../models/bayes_1.0.0.pickle', 'rb')
+            modelPickle = open('../models/bayes_1.0.0.pickle', 'rb')
+            dataPickle = open('../UserPredictionData/bayes.pickle', 'rb')
         else:
-            f = open('../models/neural_n_1.0.0.pickle', 'rb')
-        bayes = pickle.load(f)
+            modelPickle = open('../models/neural_n_1.0.0.pickle', 'rb')
+        model = pickle.load(modelPickle)
+        oldPredictions = pickle.load(dataPickle)
+        print(oldPredictions)
 
-        dict = {}
-        dict.update(DataPreprocessing.findCity(city))
-        dict.update(DataPreprocessing.findDeliveryCompany(delivery_company))
-        dict.update(DataPreprocessing.findTimeOfDay(time_of_day))
-        dict.update(DataPreprocessing.findWeekday(weekday))
-        print(dict)
+        one_hot_encoded_data = {}
+        one_hot_encoded_data.update(DataPreprocessing.findCity(city))
+        one_hot_encoded_data.update(DataPreprocessing.findDeliveryCompany(delivery_company))
+        one_hot_encoded_data.update(DataPreprocessing.findTimeOfDay(time_of_day))
+        one_hot_encoded_data.update(DataPreprocessing.findWeekday(weekday))
 
-        df = pd.DataFrame(dict)
+        data = pd.DataFrame(one_hot_encoded_data, index=[0])
 
-        y_pred = bayes.predict(df)
-        f.close()
+        # fa = open('../UserPredictionData/bayes.pickle', 'wb')
+        # pickle.dump(data, fa)
+        # fa.close()
+
+        oldPredictions = oldPredictions.append(data, ignore_index=True)
+        print(oldPredictions)
+
+        y_pred = model.predict(data)
+        dataPickle.close()
+        modelPickle.close()
 
         return 'Przewidywana ilość dni: {}' \
             .format(y_pred[0])  # TODO dodanie jeden bo modele zaokrąglają w dół
