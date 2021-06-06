@@ -78,15 +78,15 @@ def update_output_div(n_clicks, user_id, city, delivery_company,
     if n_clicks == 0:
         return dash.no_update
     else:
-        model = "bayes"  # TODO Magda wstaw tu co trzeba
+        model = "neural"  # TODO Magda wstaw tu co trzeba
         if model == "bayes":
             modelPickle = open('../models/bayes_1.0.0.pickle', 'rb')
             dataPickle = open('../UserPredictionData/bayes.pickle', 'rb')
         else:
             modelPickle = open('../models/neural_n_1.0.0.pickle', 'rb')
+            dataPickle = open('../UserPredictionData/neural.pickle', 'rb')
         model = pickle.load(modelPickle)
         oldPredictions = pickle.load(dataPickle)
-        print(oldPredictions)
 
         one_hot_encoded_data = {}
         one_hot_encoded_data.update(DataPreprocessing.findCity(city))
@@ -94,21 +94,30 @@ def update_output_div(n_clicks, user_id, city, delivery_company,
         one_hot_encoded_data.update(DataPreprocessing.findTimeOfDay(time_of_day))
         one_hot_encoded_data.update(DataPreprocessing.findWeekday(weekday))
 
-        data = pd.DataFrame(one_hot_encoded_data, index=[0])
+        predictionData = pd.DataFrame(one_hot_encoded_data, index=[0])
 
-        # fa = open('../UserPredictionData/bayes.pickle', 'wb')
-        # pickle.dump(data, fa)
-        # fa.close()
+        y_pred = model.predict(predictionData)
 
-        oldPredictions = oldPredictions.append(data, ignore_index=True)
-        print(oldPredictions)
+        rememberData = {"id": user_id, "prediction": y_pred}
+        rememberData.update(one_hot_encoded_data)
+        rememberData_df = pd.DataFrame(rememberData, index=[0])
 
-        y_pred = model.predict(data)
+        oldPredictions = oldPredictions.append(rememberData_df, ignore_index=True)
+
+        if model == "bayes":
+            fa = open('../UserPredictionData/bayes.pickle', 'wb')
+            pickle.dump(rememberData_df, fa)
+            fa.close()
+        else:
+            fa = open('../UserPredictionData/neural.pickle', 'wb')
+            pickle.dump(rememberData_df, fa)
+            fa.close()
+
         dataPickle.close()
         modelPickle.close()
 
         return 'Przewidywana ilość dni: {}' \
-            .format(y_pred[0])  # TODO dodanie jeden bo modele zaokrąglają w dół
+            .format(y_pred[0])
 
 
 if __name__ == '__main__':
