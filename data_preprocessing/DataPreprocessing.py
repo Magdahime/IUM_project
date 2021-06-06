@@ -145,7 +145,6 @@ class DataPreprocessing:
 
         df_all_data["delivery_company"] = df_all_data["delivery_company"].fillna(9999)  # TODO remove null values
 
-        df_all_data.to_csv("out.csv")
         return df_all_data
 
     @staticmethod
